@@ -2,11 +2,16 @@
 const view = {
   tabs: () => import('@/layouts/tabs'),
   blank: () => import('@/layouts/BlankView'),
-  page: () => import('@/layouts/PageView')
+  page: () => import('@/layouts/PageView'),
+  micro: () => import('@/layouts/MicroPage'),
 }
 
 // 路由组件注册
 const routerMap = {
+  microApp: {
+    microApp: true,
+    component: view.micro
+  },
   login: {
     authority: '*',
     path: '/login',

@@ -3,6 +3,7 @@ import {mergeI18nFromRoutes} from '@/utils/i18n'
 import Router from 'vue-router'
 import deepMerge from 'deepmerge'
 import basicOptions from '@/router/async/config.async'
+import {initRouter} from '@/router'
 
 //应用配置
 let appOptions = {
@@ -53,7 +54,8 @@ function parseRoutes(routesConfig, routerMap) {
         authority: routeCfg.authority || router.authority || routeCfg.meta?.authority || router.meta?.authority || '*',
         icon: routeCfg.icon || router.icon ||  routeCfg.meta?.icon || router.meta?.icon,
         page: routeCfg.page || router.page ||  routeCfg.meta?.page || router.meta?.page,
-        link: routeCfg.link || router.link ||  routeCfg.meta?.link || router.meta?.link
+        link: routeCfg.link || router.link ||  routeCfg.meta?.link || router.meta?.link,
+        microApp: routeCfg.microApp || router.microApp
       }
     }
     if (routeCfg.invisible || router.invisible) {
@@ -93,22 +95,73 @@ function loadRoutes(routesConfig) {
   } else {
     routesConfig = store.getters['account/routesConfig']
   }
+
+  let menuRouter
   // 如果开启了异步路由，则加载异步路由配置
   const asyncRoutes = store.state.setting.asyncRoutes
   if (asyncRoutes) {
     if (routesConfig && routesConfig.length > 0) {
-      const routes = parseRoutes(routesConfig, routerMap)
+
+      let rootRouterConfig = routesConfig.find(item => item.router === 'root').children
+      // asyncRouterConfig rootRouterConfig
+      let apps = rootRouterConfig.map(item => {
+        if (item.router === 'microApp') {
+          console.log(item)
+          return {
+            name: item.appName,
+            entry: item.entry,
+            container: '#micro-page',
+            activeRule: `/${item.path}`,
+            $meta: {
+              title: item.name
+            },
+            props: {
+              asyncRouterConfig: item.children
+            }
+          }
+        }
+      })
+      apps = apps.filter(res => res !== undefined)
+      store.commit('microApp/setApps', apps)
+      console.log('microApp/setApps', apps)
+
+      let routes = parseRoutes(routesConfig, routerMap)
+
+      const allRoutes = deepClone(routes)
+      
+      routes = routes.map(r => {
+        if (r.path === '/') {
+          r.children.map(rc => {
+            if (rc.meta.microApp) {
+              rc.children = []
+              rc.path = `${rc.path}/*`
+            }
+          })
+        }
+        return r
+      })
+      console.log('loadRoutes', routes)
       const finalRoutes = mergeRoutes(basicOptions.routes, routes)
       formatRoutes(finalRoutes)
       router.options = {...router.options, routes: finalRoutes}
       router.matcher = new Router({...router.options, routes:[]}).matcher
       router.addRoutes(finalRoutes)
+
+      const menuFinalRoutes = mergeRoutes(basicOptions.routes, allRoutes)
+      formatRoutes(menuFinalRoutes)
+      menuRouter = initRouter(store.state.setting.asyncRoutes)
+      menuRouter.options = {...menuRouter.options, routes: menuFinalRoutes}
+      menuRouter.matcher = new Router({...menuRouter.options, routes:[]}).matcher
+      menuRouter.addRoutes(menuFinalRoutes)
     }
   }
+
+  const rs = menuRouter ? menuRouter.options.routes : router.options.routes
+
   // 提取路由国际化数据
-  mergeI18nFromRoutes(i18n, router.options.routes)
+  mergeI18nFromRoutes(i18n, rs)
   // 初始化Admin后台菜单数据
-  const rootRoute = router.options.routes.find(item => item.path === '/')
+  const rootRoute = rs.find(item => item.path === '/')
   const menuRoutes = rootRoute && rootRoute.children
   if (menuRoutes) {
     store.commit('setting/setMenuData', menuRoutes)
@@ -164,6 +217,18 @@ function deepMergeRoutes(target, source) {
     })
   }
   return parseRoutesMap(merge)
+}
+
+function deepClone(obj) {
+  let newObj = Array.isArray(obj) ? [] : {}
+  if (obj && typeof obj === "object") {
+      for (let key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+              newObj[key] = (obj && typeof obj[key] === 'object') ? deepClone(obj[key]) : obj[key];
+          }
+      }
+  } 
+  return newObj
 }
 
 /**

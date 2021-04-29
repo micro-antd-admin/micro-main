@@ -73,6 +73,20 @@ export default {
   computed: {
     menuTheme() {
       return this.theme == 'light' ? this.theme : 'dark'
+    },
+    routeMatched() {
+      const path = this.$route.path
+      const pathArray = path.split('/')
+      let routeMatched = []
+      let lastPath = ''
+      pathArray.forEach( pa => {
+        if (pa) {
+          lastPath = `${lastPath}/${pa}`
+        }
+        
+        routeMatched.push(lastPath)
+      })
+      return routeMatched
     }
   },
   created () {
@@ -200,16 +214,18 @@ export default {
       })
     },
     updateMenu () {
-      const matchedRoutes = this.$route.matched.filter(item => item.path !== '')
-      this.selectedKeys = this.getSelectedKey(this.$route)
-      let openKeys = matchedRoutes.map(item => item.path)
+      const matchedRoutes =  this.routeMatched.filter(item => item.path !== '')
+      this.selectedKeys =  this.routeMatched
+      let openKeys = matchedRoutes
       openKeys = openKeys.slice(0, openKeys.length -1)
       if (!fastEqual(openKeys, this.sOpenKeys)) {
         this.collapsed || this.mode === 'horizontal' ? this.cachedOpenKeys = openKeys : this.sOpenKeys = openKeys
       }
     },
     getSelectedKey (route) {
-      return route.matched.map(item => item.path)
+      const selectKeys = route.matched.map(item => item.path.replace('/*', ''))
+      selectKeys.push(route.path)
+      return selectKeys
     }
   },
   render (h) {

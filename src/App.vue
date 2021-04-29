@@ -49,7 +49,21 @@ export default {
     }
   },
   computed: {
-    ...mapState('setting', ['layout', 'theme', 'weekMode', 'lang'])
+    ...mapState('setting', ['layout', 'theme', 'weekMode', 'lang']),
+    routeMatched() {
+      const path = this.$route.path
+      const pathArray = path.split('/')
+      let routeMatched = []
+      let lastPath = ''
+      pathArray.forEach( pa => {
+        if (pa) {
+          lastPath = `${lastPath}/${pa}`
+        }
+        
+        routeMatched.push(lastPath)
+      })
+      return routeMatched
+    }
   },
   methods: {
     ...mapMutations('setting', ['setDevice']),
@@ -77,7 +91,7 @@ export default {
     },
     setHtmlTitle() {
       const route = this.$route
-      const key = route.path === '/' ? 'home.name' : getI18nKey(route.matched[route.matched.length - 1].path)
+      const key = route.path === '/' ? 'home.name' : getI18nKey(this.routeMatched[this.routeMatched.length - 1])
       document.title = process.env.VUE_APP_NAME + ' | ' + this.$t(key)
     },
     popContainer() {

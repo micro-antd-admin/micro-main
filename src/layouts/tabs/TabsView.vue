@@ -13,7 +13,8 @@
     <div :class="['tabs-view-content', layout, pageWidth]" :style="`margin-top: ${multiPage ? -24 : 0}px`">
       <page-toggle-transition :disabled="animate.disabled" :animate="animate.name" :direction="animate.direction">
         <a-keep-alive :exclude-keys="excludeKeys" v-if="multiPage && cachePage" v-model="clearCaches">
-          <router-view v-if="!refreshing" ref="tabContent" :key="$route.fullPath" />
+          <!-- <router-view v-if="!refreshing" ref="tabContent" :key="$route.fullPath" /> -->
+          <router-view v-if="!refreshing" ref="tabContent"/>
         </a-keep-alive>
         <router-view ref="tabContent" v-else-if="!refreshing" />
       </page-toggle-transition>

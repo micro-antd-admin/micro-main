@@ -97,7 +97,7 @@
       pageName(page) {
         const pagePath = page.fullPath.split('?')[0]
         const custom = this.customTitles.find(item => item.path === pagePath)
-        return (custom && custom.title) || page.title || this.$t(getI18nKey(page.keyPath))
+        return (custom && custom.title) || page.title || this.$t(getI18nKey(pagePath))
       }
     }
   }

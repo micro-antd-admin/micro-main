@@ -1,11 +1,6 @@
 <template>
-  <page-layout :desc="desc" :linkList="linkList">
-    <div v-if="this.extraImage && !isMobile" slot="extra" class="extraImg">
-      <img :src="extraImage"/>
-    </div>
-    <page-toggle-transition :disabled="animate.disabled" :animate="animate.name" :direction="animate.direction">
-        <router-view ref="page" />
-    </page-toggle-transition>
+  <page-layout :avatar="currUser.avatar">
+    <div id="micro-page" class="micro-page-cls"></div>
   </page-layout>
 </template>
 
@@ -13,14 +8,28 @@
 import { mapState } from 'vuex'
 import PageLayout from '@/layouts/PageLayout'
 import microAppRegister from '@/microAppRegister'
+
 export default {
   name: 'MicroPage',
   components: { PageLayout },
    computed: {
-    ...mapState('account', {currUser: 'user'})
+    ...mapState('account', {currUser: 'user'}),
+    // desc() {
+    //   return this.page.desc
+    // },
+    // linkList() {
+    //   return this.page.linkList
+    // },
+    extraImage() {
+      return this.page.extraImage
+    }
   },
   mounted() {
     microAppRegister(this)
+    //  this.page = this.$refs.page
+  },
+  updated () {
+    // this.page = this.$refs.page
   }
 }
 </script>

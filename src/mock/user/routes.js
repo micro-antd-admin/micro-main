@@ -7,6 +7,40 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, 'get', () => {
     router: 'root',
     children: [
       {
+        router: 'microApp',
+        name: 'Vue 微应用',
+        appName: 'micro-vue',
+        path: 'micro-vue',
+        entry: 'http://localhost:9000',
+        icon: 'appstore',
+        children: [
+          {
+            router: 'parent',
+            name: '二级目录',
+            icon: 'ant-design',
+            children: ['test']
+          },
+          {
+            router: 'home',
+            icon: 'calendar',
+            name: '首页',
+          },
+          {
+            router: 'about',
+            icon: 'bulb',
+            name: '关于'
+          }
+        ]
+      },
+      // {
+      //   router: 'microApp',
+      //   name: 'React 微应用',
+      //   appName: 'micro-react',
+      //   path: 'micro-react',
+      //   entry: 'http://localhost:3000',
+      //   children: ['home', 'about']
+      // },
+      {
         router: 'dashboard',
         children: ['workplace', 'analysis'],
       },

@@ -53,11 +53,12 @@ export default {
     }
   },
   watch: {
-    $route(val) {
-      this.setActivated(val)
+    $route() {
+      this.setActivated()
     },
     layout() {
-      this.setActivated(this.$route)
+      // this.setActivated(this.$route)
+      this.setActivated()
     },
     isMobile(val) {
       if(!val) {
@@ -84,6 +85,20 @@ export default {
     sideMenuData() {
       const {layout, menuData, subMenu} = this
       return layout === 'mix' ? subMenu : menuData
+    },
+    routeMatched() {
+      const path = this.$route.path
+      const pathArray = path.split('/')
+      let routeMatched = []
+      let lastPath = ''
+      pathArray.forEach( pa => {
+        if (pa) {
+          lastPath = `${lastPath}/${pa}`
+        }
+        
+        routeMatched.push(lastPath)
+      })
+      return routeMatched
     }
   },
   methods: {
@@ -94,13 +109,13 @@ export default {
     onMenuSelect () {
       this.toggleCollapse()
     },
-    setActivated(route) {
+    setActivated() {
       if (this.layout === 'mix') {
-        let matched = route.matched
+        let matched = this.routeMatched
         matched = matched.slice(0, matched.length - 1)
         const {firstMenu} = this
         for (let menu of firstMenu) {
-          if (matched.findIndex(item => item.path === menu.fullPath) !== -1) {
+          if (matched.findIndex(item => item === menu.fullPath) !== -1) {
             this.setActivatedFirst(menu.fullPath)
             break
           }
@@ -110,7 +125,7 @@ export default {
   },
   created() {
     this.correctPageMinHeight(this.minHeight - 24)
-    this.setActivated(this.$route)
+    this.setActivated()
   },
   beforeDestroy() {
     this.correctPageMinHeight(-this.minHeight + 24)

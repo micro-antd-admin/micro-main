@@ -60,9 +60,9 @@ export default function microAppRegister (vm) {
      * */
     const loader = loading => {
       console.log('LOADER %c%s', 'color:yellow', loading)
-      vm.$store.commit('loadingToggle', loading)
+      vm.$store.commit('microApp/loadingToggle', loading)
     }
-    let apps = vm.$store.state.microApp.apps
+    let apps = vm.$store.getters['microApp/microApps']
     // 用户信息
     let userInfo = vm.$store.getters['account/user']
     console.log('registerMicroApps', apps)
