@@ -32,14 +32,14 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, 'get', () => {
           }
         ]
       },
-      // {
-      //   router: 'microApp',
-      //   name: 'React 微应用',
-      //   appName: 'micro-react',
-      //   path: 'micro-react',
-      //   entry: 'http://localhost:3000',
-      //   children: ['home', 'about']
-      // },
+      {
+        router: 'microApp',
+        name: 'React 微应用',
+        appName: 'micro-react',
+        path: 'micro-react',
+        entry: 'http://localhost:3000',
+        children: ['home', 'about', 'test']
+      },
       {
         router: 'dashboard',
         children: ['workplace', 'analysis'],
